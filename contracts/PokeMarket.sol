@@ -33,7 +33,7 @@ contract accessControlled {
     }
 
     modifier onlyOwner {
-        if (msg.sender != owner) throw;
+        if (msg.sender != owner) revert();
         /* o caracter "_" é substituído pelo corpo da funcao onde o modifier é utilizado */
         _;
     }
@@ -81,12 +81,12 @@ contract PokeMarket is accessControlled {
 
     /* Inicia uma nova venda */
     function newSale(address pokeSellerAddress, uint pokemonID, uint pokemonSalePrice)  onlyOwner returns (bool success){
-        if (pokeSellerAddress != pokeCentral.pokemonToMaster(pokemonID)) throw;     // Verifica se o vendedor possui o pokemon colocado a venda
-        if (pokeSelling[pokemonID]) throw;                                          // Verifica se ja ha venda ativa para este pokemon
+        if (pokeSellerAddress != pokeCentral.pokemonToMaster(pokemonID)) revert();     // Verifica se o vendedor possui o pokemon colocado a venda
+        if (pokeSelling[pokemonID]) revert();                                          // Verifica se ja ha venda ativa para este pokemon
 
         uint pokeSalesID = pokeSales.length++;
         PokeSale p = pokeSales[pokeSalesID];
-        if (p.pokeSellActive) throw;
+        if (p.pokeSellActive) revert();
         p.pokeSeller = pokeSellerAddress;
         p.pokeID = pokemonID;
         p.pokePrice = pokemonSalePrice;
@@ -107,13 +107,13 @@ contract PokeMarket is accessControlled {
 
     /* Cancela uma venda ativa */
     function stopSale(address pokeSellerAddress, uint pokemonID) onlyOwner {
-        if (msg.sender != owner && msg.sender != pokeSellerAddress) throw;          // Verifica se quem está solicitando o cancelamento da venda é o criador da mesma ou o owner
-        if (pokeSellerAddress != pokeCentral.pokemonToMaster(pokemonID)) throw;     // Verifica se o pokemon é do proprietario
-        if (!pokeSelling[pokemonID]) throw;                                         // Verifica se a venda esta ativa
+        if (msg.sender != owner && msg.sender != pokeSellerAddress) revert();          // Verifica se quem está solicitando o cancelamento da venda é o criador da mesma ou o owner
+        if (pokeSellerAddress != pokeCentral.pokemonToMaster(pokemonID)) revert();     // Verifica se o pokemon é do proprietario
+        if (!pokeSelling[pokemonID]) revert();                                         // Verifica se a venda esta ativa
 
         uint pokeSalesID = pokeSaleIndex[pokemonID];
         PokeSale p = pokeSales[pokeSalesID];
-        if (!p.pokeSellActive) throw;
+        if (!p.pokeSellActive) revert();
         p.pokeSellActive = false;
         pokeSelling[pokemonID] = false;
 
@@ -126,13 +126,13 @@ contract PokeMarket is accessControlled {
 
     /* Compra um Pokemon */
     function buyPokemon(address pokeBuyerAddress, uint pokemonID) {
-        if (pokeBuyerAddress == pokeCentral.pokemonToMaster(pokemonID)) throw;  // Verifica se quem está comprando é o próprio vendedor
-        if (!pokeSelling[pokemonID]) throw;                                     // Verifica se o pokemon esta a venda
+        if (pokeBuyerAddress == pokeCentral.pokemonToMaster(pokemonID)) revert();  // Verifica se quem está comprando é o próprio vendedor
+        if (!pokeSelling[pokemonID]) revert();                                     // Verifica se o pokemon esta a venda
 
         uint pokeSalesID = pokeSaleIndex[pokemonID];
         PokeSale p = pokeSales[pokeSalesID];
-        if (!p.pokeSellActive) throw;                                           // Verifica se na struct o pokemon esta com venda ativa
-        if (pokeCoin.balanceOf(pokeBuyerAddress) < p.pokePrice) throw;          // Verifica se o comprador possui fundos suficientes para comprar o pokemon
+        if (!p.pokeSellActive) revert();                                           // Verifica se na struct o pokemon esta com venda ativa
+        if (pokeCoin.balanceOf(pokeBuyerAddress) < p.pokePrice) revert();          // Verifica se o comprador possui fundos suficientes para comprar o pokemon
 
         pokeCoin.transferFrom(pokeBuyerAddress, p.pokeSeller, p.pokePrice);     // Chama a funcao transferFrom do contrato pokecoin
         pokeCentral.transferPokemon(p.pokeSeller, pokeBuyerAddress, pokemonID); // Chama a funcao transferPokemon do contrato pokecentral
@@ -190,7 +190,7 @@ contract PokeMarket is accessControlled {
 
     /* Uma funcao sem nome '()' eh chamada todas as vezes que forem enviados ethers para ela */
     function (){
-        throw;      // Nao permite o recebimento de ether
+        revert();      // Nao permite o recebimento de ether
     }
 
 }

@@ -30,7 +30,7 @@ contract accessControlled {
     }
 
     modifier onlyOwner {
-        if (msg.sender != owner) throw;
+        if (msg.sender != owner) revert();
         /* o caracter "_" é substituído pelo corpo da funcao onde o modifier é utilizado */
         _;
     }
@@ -156,9 +156,9 @@ contract PokeCentral is accessControlled {
 
     /* Transferencia de Pokemons */
     function transferPokemon(address _from, address _to, uint256 _pokemonID) returns (uint pokemonID, address from, address to) {
-        if (msg.sender != owner && msg.sender != pokeMarketAddress) throw;
+        if (msg.sender != owner && msg.sender != pokeMarketAddress) revert();
         Pokemon p = pokemons[_pokemonID];
-        if (p.pokeOwner != _from) throw;
+        if (p.pokeOwner != _from) revert();
         /* Se o Mestre Pokémon não existe ainda, crie-o */
         if (pokeOwnerIndex[_to] == 0 && _to != pokemonToMaster[0] ) newPokemonMaster(_to);
         p.pokeOwner = _to;
@@ -171,7 +171,7 @@ contract PokeCentral is accessControlled {
 
     /* Vincula um pokemon ao seu treinador */
     function addPokemonToMaster(address _pokemonOwner, uint256 _pokemonID) internal returns (address pokeOwner, uint[] pokemons, uint pokemonsTotal) {
-        if (msg.sender != owner && msg.sender != pokeMarketAddress) throw;
+        if (msg.sender != owner && msg.sender != pokeMarketAddress) revert();
 
         uint ownerID = pokeOwnerIndex[_pokemonOwner];
         PokemonMaster o = pokeMasters[ownerID];
@@ -211,7 +211,7 @@ contract PokeCentral is accessControlled {
 
     /* Desvincula um pokemon do seu treinador */
     function delPokemonFromMaster(address _pokemonOwner, uint256 _pokemonID) internal  returns (address pokeOwner, uint[] pokemons, uint pokemonsTotal) {
-        if (msg.sender != owner && msg.sender != pokeMarketAddress) throw;
+        if (msg.sender != owner && msg.sender != pokeMarketAddress) revert();
 
         uint ownerID = pokeOwnerIndex[_pokemonOwner];
         PokemonMaster o = pokeMasters[ownerID];
@@ -244,7 +244,7 @@ contract PokeCentral is accessControlled {
 
     /* Conta a qtde de pokemons em um array que possui zeros */
     function qtdePokemons( address _pokeOwner) internal returns (uint qtde){
-        if (msg.sender != owner && msg.sender != pokeMarketAddress) throw;
+        if (msg.sender != owner && msg.sender != pokeMarketAddress) revert();
 
         uint ownerID = pokeOwnerIndex[_pokeOwner];
         PokemonMaster o = pokeMasters[ownerID];
@@ -284,6 +284,6 @@ contract PokeCentral is accessControlled {
 
     /* Se tentarem enviar ether para o end desse contrato, ele rejeita */
     function () {
-        throw;
+        revert();
     }
 }
