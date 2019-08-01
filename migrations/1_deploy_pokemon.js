@@ -1,5 +1,9 @@
-account1Demo = '0x616d18096ce6e1038b5c3ded080cef8ab17b3843';
-account2Demo = '0x2f33f148b5ff5f76e63460e14228a671923de628';
+const PokeCoin = artifacts.require("PokeCoin");
+const PokeCentral = artifacts.require("PokeCentral");
+const PokeMarket = artifacts.require("PokeMarket");
+
+account1Demo = '0xd712cbbb96d1eb04618a17ddc0cdf3f671dd8554';
+account2Demo = '0xca6f52777fd5f415b717e65a3557061e907baffa';
 pokeCoinAddress = '';
 pokeCentralAddress = '';
 module.exports = function(deployer) {
