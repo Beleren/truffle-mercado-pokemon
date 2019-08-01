@@ -21,27 +21,27 @@ Copyright (c) 2016 Edilson Osorio Junior - OriginalMy.com
 */
 
 pragma solidity ^0.4.2;
-contract tokenRecipient { function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData); }
+contract tokenRecipient { function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData) public; }
 
 contract accessControlled {
     address public owner;
     address public pokeMarketAddress;
 
-    function owned() {
+    function owned() public{
         owner = msg.sender;
     }
 
     modifier onlyOwner {
-        if (msg.sender != owner) throw;
+        if (msg.sender != owner) revert();
         /* o caracter "_" é substituído pelo corpo da funcao onde o modifier é utilizado */
         _;
     }
 
-    function transferOwnership(address newOwner) onlyOwner {
+    function transferOwnership(address newOwner) public onlyOwner {
         owner = newOwner;
     }
 
-    function updatePokeMarketAddress(address marketAddress) onlyOwner {
+    function updatePokeMarketAddress(address marketAddress) public onlyOwner {
         pokeMarketAddress = marketAddress;
     }
 
@@ -61,7 +61,7 @@ contract PokeCoin is accessControlled{
     event Transfer(address indexed from, address indexed to, uint256 value);
 
     /* Inicializa o contrato com o numero inicial de tokens */
-    function PokeCoin( uint256 initialSupply, address account1Demo, address account2Demo) {
+    function PokeCoin( uint256 initialSupply, address account1Demo, address account2Demo) public {
         owner = msg.sender;
 
         /* Envia as pokecoins para o criador */
@@ -77,33 +77,33 @@ contract PokeCoin is accessControlled{
     }
 
     /* Transferencia de pokecoins (necessario para Mist fazer a transferencia) */
-    function transfer(address _to, uint256 _value) onlyOwner {
-        if (balanceOf[msg.sender] < _value) throw;           // Verifica se o remetente possui pokecoins suficientes
-        if (balanceOf[_to] + _value < balanceOf[_to]) throw; // Checa se nao houve ataque
+    function transfer(address _to, uint256 _value) public onlyOwner {
+        if (balanceOf[msg.sender] < _value) revert();           // Verifica se o remetente possui pokecoins suficientes
+        if (balanceOf[_to] + _value < balanceOf[_to]) revert(); // Checa se nao houve ataque
         balanceOf[msg.sender] -= _value;                     // Subtrai as pokecoins do remetente
         balanceOf[_to] += _value;                            // Adiciona pokecoins para o destinatario
         Transfer(msg.sender, _to, _value);                   // Notifica os clientes que estiverem nonitorando
     }
 
     /* Emite novas pokecoins para o owner distribuí-las */
-    function issueNew(uint256 newSupply) onlyOwner{
+    function issueNew(uint256 newSupply) public onlyOwner{
         balanceOf[msg.sender] += newSupply;
         totalSupply += newSupply;
     }
 
     /* Exclui pokecoins do endereço do owner */
-    function vanishCoins(uint256 qtdCoinsToDelete) onlyOwner{
-        if (balanceOf[msg.sender] < qtdCoinsToDelete) throw;    // Verifica se o owner possui pokecoins suficientes para exclusao
+    function vanishCoins(uint256 qtdCoinsToDelete) public onlyOwner{
+        if (balanceOf[msg.sender] < qtdCoinsToDelete) revert();    // Verifica se o owner possui pokecoins suficientes para exclusao
         balanceOf[msg.sender] -= qtdCoinsToDelete;
         totalSupply -= qtdCoinsToDelete;
     }
 
     /* Funcao para os contratos poderem transferir pokecoins */
-    function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
-        if (msg.sender != owner && msg.sender != pokeMarketAddress) throw;  // Somente da acesso ao owner e ao mercado pokemon para executar essa funcao
+    function transferFrom(address _from, address _to, uint256 _value) public  returns (bool success) {
+        if (msg.sender != owner && msg.sender != pokeMarketAddress) revert();  // Somente da acesso ao owner e ao mercado pokemon para executar essa funcao
 
-        if (balanceOf[_from] < _value) throw;                 // Verifica se o remetente possui pokecoins suficientes
-        if (balanceOf[_to] + _value < balanceOf[_to]) throw;  // Checa se nao houve ataque
+        if (balanceOf[_from] < _value) revert();                 // Verifica se o remetente possui pokecoins suficientes
+        if (balanceOf[_to] + _value < balanceOf[_to]) revert();  // Checa se nao houve ataque
         balanceOf[_from] -= _value;                          // Subtrai as pokecoins do remetente
         balanceOf[_to] += _value;                            // Adiciona pokecoins para o destinatario
         Transfer(_from, _to, _value);                       // Notifica os clientes que estiverem nonitorando
@@ -111,7 +111,7 @@ contract PokeCoin is accessControlled{
     }
 
     /* Uma funcao sem nome '()' eh chamada todas as vezes que forem enviados ethers para ela */
-    function () {
-        throw;     // Nao permite o recebimento de ether
+    function () public {
+        revert();     // Nao permite o recebimento de ether
     }
 }
