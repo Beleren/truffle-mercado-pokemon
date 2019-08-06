@@ -84,32 +84,32 @@ contract PokeCentral is accessControlled {
     event Log1(uint number);
     event Log2(string message);
     /* Inicializa o contrato */
-    constructor (address account1Demo, address account2Demo) public {
-        owner = msg.sender;
+    // constructor (address account1Demo, address account2Demo) public {
+    //     owner = msg.sender;
 
-        newPokemonMaster(owner);                            // Todos pokemons serao criados para este owner
+    //     newPokemonMaster(owner);                            // Todos pokemons serao criados para este owner
 
-        /*
-        Há um problema com um array de indices, pois quando um item é excluído, é substituído por 0.
-        Então vamos criar um pokemon fake no primeiro item e ajustar a quantidade para ignorá-lo
-        */
-        newPokemon(0,0,0);                                  // Pokemon Índice 0
-        totalPokemonSupply-=1;                              // Ajusta o total de pokemons porque o primeiro é fake
+    //     /*
+    //     Há um problema com um array de indices, pois quando um item é excluído, é substituído por 0.
+    //     Então vamos criar um pokemon fake no primeiro item e ajustar a quantidade para ignorá-lo
+    //     */
+    //     newPokemon(0,0,0);                                  // Pokemon Índice 0
+    //     totalPokemonSupply-=1;                              // Ajusta o total de pokemons porque o primeiro é fake
 
-        /* Criacao de pokemons iniciais */
-        //newPokemon(3,500,40);
-        //newPokemon(1,535,70);
-        //newPokemon(4,546,80);
-        //newPokemon(2,557,90);
+    //     /* Criacao de pokemons iniciais */
+    //     //newPokemon(3,500,40);
+    //     //newPokemon(1,535,70);
+    //     //newPokemon(4,546,80);
+    //     //newPokemon(2,557,90);
 
-        /* Se as contas demo forem apresentadas no carregamento, então os pokemons criados serão distribuidos entre elas */
-        //if (account1Demo != 0 && account2Demo != 0){
-            //transferPokemon(msg.sender, account1Demo, 1);
-            //transferPokemon(msg.sender, account1Demo, 4);
-            //transferPokemon(msg.sender, account2Demo, 2);
-            //transferPokemon(msg.sender, account2Demo, 3);
-        //}
-    }
+    //     /* Se as contas demo forem apresentadas no carregamento, então os pokemons criados serão distribuidos entre elas */
+    //     //if (account1Demo != 0 && account2Demo != 0){
+    //         //transferPokemon(msg.sender, account1Demo, 1);
+    //         //transferPokemon(msg.sender, account1Demo, 4);
+    //         //transferPokemon(msg.sender, account2Demo, 2);
+    //         //transferPokemon(msg.sender, account2Demo, 3);
+    //     //}
+    // }
 
     /* Criar novo Pokemon */
     function newPokemon(uint pokemonNumber, uint cp, uint hp ) public onlyOwner returns (bool success) { // cp e hp podem ser fornecidos randomicamente por https://api.random.org/json-rpc/1/basic

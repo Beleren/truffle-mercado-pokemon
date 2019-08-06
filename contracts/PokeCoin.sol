@@ -61,20 +61,20 @@ contract PokeCoin is accessControlled{
     event Transfer(address indexed from, address indexed to, uint256 value);
 
     /* Inicializa o contrato com o numero inicial de tokens */
-    constructor(uint256 initialSupply, address account1Demo, address account2Demo) public {
-        owner = msg.sender;
+    // constructor(uint256 initialSupply) public {
+    //     owner = msg.sender;
 
-        /* Envia as pokecoins para o criador */
-        balanceOf[msg.sender] = initialSupply;
-        /* Ajusta o totalsupply */
-        totalSupply = initialSupply;
+    //     /* Envia as pokecoins para o criador */
+    //     balanceOf[msg.sender] = initialSupply;
+    //     /* Ajusta o totalsupply */
+    //     totalSupply = initialSupply;
 
-        /* Se incluiu os enderecos demo, então divide as pokecoins entre eles */
-        if (account1Demo != address(0) && account2Demo != address(0)){
-            transfer(account1Demo, totalSupply/2);
-            transfer(account2Demo, totalSupply/2);
-        }
-    }
+    //     /* Se incluiu os enderecos demo, então divide as pokecoins entre eles */
+    //     // if (account1Demo != address(0) && account2Demo != address(0)){
+    //     //     transfer(account1Demo, totalSupply/2);
+    //     //     transfer(account2Demo, totalSupply/2);
+    //     // }
+    // }
 
     /* Transferencia de pokecoins (necessario para Mist fazer a transferencia) */
     function transfer(address _to, uint256 _value) public onlyOwner {
