@@ -20,12 +20,12 @@ Copyright (c) 2016 Edilson Osorio Junior - OriginalMy.com
  THE SOFTWARE.
 */
 
-pragma solidity ^0.4.2;
+pragma solidity ^0.5.1;
 contract accessControlled {
     address public owner;
     address public pokeMarketAddress;
 
-    function accessControlled() {
+    constructor() public {
         owner = msg.sender;
     }
 
@@ -35,11 +35,11 @@ contract accessControlled {
         _;
     }
 
-    function transferOwnership(address newOwner) onlyOwner {
+    function transferOwnership(address newOwner) public onlyOwner {
         owner = newOwner;
     }
 
-    function updatePokeMarketAddress(address marketAddress) onlyOwner {
+    function updatePokeMarketAddress(address marketAddress) public onlyOwner {
         pokeMarketAddress = marketAddress;
     }
 
@@ -83,9 +83,8 @@ contract PokeCentral is accessControlled {
     event UpdateMasterPokemons(address owner, uint total);
     event Log1(uint number);
     event Log2(string message);
-
     /* Inicializa o contrato */
-    function PokeCentral(address account1Demo, address account2Demo) {
+    constructor (address account1Demo, address account2Demo) public {
         owner = msg.sender;
 
         newPokemonMaster(owner);                            // Todos pokemons serao criados para este owner
@@ -113,51 +112,51 @@ contract PokeCentral is accessControlled {
     }
 
     /* Criar novo Pokemon */
-    function newPokemon(uint pokemonNumber, uint cp, uint hp ) onlyOwner returns (bool success) { // cp e hp podem ser fornecidos randomicamente por https://api.random.org/json-rpc/1/basic
+    function newPokemon(uint pokemonNumber, uint cp, uint hp ) public onlyOwner returns (bool success) { // cp e hp podem ser fornecidos randomicamente por https://api.random.org/json-rpc/1/basic
         uint pokemonID = pokemons.length++;
-        Pokemon p = pokemons[pokemonID];
+        Pokemon memory p = pokemons[pokemonID];
         p.pokeNumber = pokemonNumber;
         p.pokeName = pokemonNameTypes[pokemonNumber][0];
         p.pokeType = pokemonNameTypes[pokemonNumber][1];
         p.pokeCP = cp;
         p.pokeHP = hp;
 
-        p.pokemonHash = sha3(p.pokeNumber,p.pokeName,p.pokeType,p.pokeCP,p.pokeHP); // Hash de verificacao das infos do pokémon
+        p.pokemonHash = keccak256(abi.encodePacked(p.pokeNumber,p.pokeName,p.pokeType,p.pokeCP,p.pokeHP)); // Hash de verificacao das infos do pokémon
         p.pokeOwner = owner;
         pokemonToMaster[pokemonID] = owner;
         addPokemonToMaster(owner, pokemonID);
 
         totalPokemonSupply += 1;
-        CreatePokemon(pokemonID, p.pokeName, p.pokeCP, p.pokeHP);
+        emit CreatePokemon(pokemonID, p.pokeName, p.pokeCP, p.pokeHP);
         return true;
     }
 
     /* Alterar CP e HP de um Pokemon */
-    function updatePokemon(uint _pokemonID, uint _cp, uint _hp ) onlyOwner returns (bool success) {
-        Pokemon p = pokemons[_pokemonID];
+    function updatePokemon(uint _pokemonID, uint _cp, uint _hp ) public onlyOwner returns (bool success) {
+        Pokemon memory p = pokemons[_pokemonID];
         p.pokeCP = _cp;
         p.pokeHP = _hp;
 
-        p.pokemonHash = sha3(p.pokeNumber,p.pokeName,p.pokeType,p.pokeCP,p.pokeHP);
+        p.pokemonHash = keccak256(abi.encodePacked(p.pokeNumber,p.pokeName,p.pokeType,p.pokeCP,p.pokeHP));
 
-        UpdatePokemon(_pokemonID, p.pokeName, p.pokeCP, p.pokeHP);
+        emit UpdatePokemon(_pokemonID, p.pokeName, p.pokeCP, p.pokeHP);
         return true;
 
     }
 
     /* Criar novo Mestre Pokemon */
-    function newPokemonMaster(address pokemonMaster) onlyOwner returns (bool success) {
+    function newPokemonMaster(address pokemonMaster) public onlyOwner returns (bool success) {
         uint ownerID = pokeMasters.length++;
-        PokemonMaster o = pokeMasters[ownerID];
+        PokemonMaster memory o = pokeMasters[ownerID];
         o.pokeMaster = pokemonMaster;
         pokeOwnerIndex[pokemonMaster] = ownerID;
         return true;
     }
 
     /* Transferencia de Pokemons */
-    function transferPokemon(address _from, address _to, uint256 _pokemonID) returns (uint pokemonID, address from, address to) {
+    function transferPokemon(address _from, address _to, uint256 _pokemonID) public returns (uint pokemonID, address from, address to) {
         if (msg.sender != owner && msg.sender != pokeMarketAddress) revert();
-        Pokemon p = pokemons[_pokemonID];
+        Pokemon memory p = pokemons[_pokemonID];
         if (p.pokeOwner != _from) revert();
         /* Se o Mestre Pokémon não existe ainda, crie-o */
         if (pokeOwnerIndex[_to] == 0 && _to != pokemonToMaster[0] ) newPokemonMaster(_to);
@@ -165,17 +164,17 @@ contract PokeCentral is accessControlled {
         pokemonToMaster[_pokemonID] = _to;
         delPokemonFromMaster(_from, _pokemonID);
         addPokemonToMaster(_to, _pokemonID);
-        Transfer(_from, _to, _pokemonID);
+        emit Transfer(_from, _to, _pokemonID);
         return (_pokemonID, _from, _to);
     }
 
     /* Vincula um pokemon ao seu treinador */
-    function addPokemonToMaster(address _pokemonOwner, uint256 _pokemonID) internal returns (address pokeOwner, uint[] pokemons, uint pokemonsTotal) {
+    function addPokemonToMaster(address _pokemonOwner, uint256 _pokemonID) internal returns (address pokeOwner, uint[] memory  pokemons, uint pokemonsTotal) {
         if (msg.sender != owner && msg.sender != pokeMarketAddress) revert();
 
         uint ownerID = pokeOwnerIndex[_pokemonOwner];
-        PokemonMaster o = pokeMasters[ownerID];
-        uint[] pokeList = o.pokemons;
+        PokemonMaster memory o = pokeMasters[ownerID];
+        uint[] memory pokeList = o.pokemons;
 
         /* usando array.push ele adiciona 0,_pokemonID no array */
         // o.pokemons.push(_pokemonID);
@@ -190,53 +189,54 @@ contract PokeCentral is accessControlled {
         */
 
         bool slot;
-        for (uint i=0; i < pokeList.length; i++){
+        for (uint i = 0; i < pokeList.length; i++){
             if (pokeList[i] == 0){
                 slot = true;
                 break;
             }
-        }
+        
         if (slot == true){
             o.pokemons[i] = _pokemonID;
         } else {
-            uint j = pokeList.length++;
+            uint j = pokeList.length + 1;
             o.pokemons[j] = _pokemonID;
+        }
         }
         balanceOf[_pokemonOwner] = cleanArray(o.pokemons);
 
         qtdePokemons(_pokemonOwner);
-        UpdateMasterPokemons(_pokemonOwner, o.pokemons.length);
+        emit UpdateMasterPokemons(_pokemonOwner, o.pokemons.length);
         return (_pokemonOwner, o.pokemons, o.pokemons.length);
     }
 
     /* Desvincula um pokemon do seu treinador */
-    function delPokemonFromMaster(address _pokemonOwner, uint256 _pokemonID) internal  returns (address pokeOwner, uint[] pokemons, uint pokemonsTotal) {
+    function delPokemonFromMaster(address _pokemonOwner, uint256 _pokemonID) internal  returns (address pokeOwner, uint[] memory pokemons, uint pokemonsTotal) {
         if (msg.sender != owner && msg.sender != pokeMarketAddress) revert();
 
         uint ownerID = pokeOwnerIndex[_pokemonOwner];
-        PokemonMaster o = pokeMasters[ownerID];
-        uint[] pokeList = o.pokemons;
+        PokemonMaster memory o = pokeMasters[ownerID];
+        uint[] memory pokeList = o.pokemons;
 
-        for (uint i=0; i < pokeList.length; i++){
+        for (uint i = 0; i < pokeList.length; i++){
             if (pokeList[i] == _pokemonID){
                 delete pokeList[i];
             }
         }
 
         // http://ethereum.stackexchange.com/questions/3373/how-to-clear-large-arrays-without-blowing-the-gas-limit
-        o.pokemons=cleanArray(pokeList); // Rearranja o array, eliminando os itens zerados, a custo de gas
+        o.pokemons = cleanArray(pokeList); // Rearranja o array, eliminando os itens zerados, a custo de gas
 
         balanceOf[_pokemonOwner] = cleanArray(o.pokemons);
 
         qtdePokemons(_pokemonOwner);
-        UpdateMasterPokemons(_pokemonOwner, o.pokemons.length);
+        emit UpdateMasterPokemons(_pokemonOwner, o.pokemons.length);
         return (_pokemonOwner, o.pokemons, o.pokemons.length);
     }
 
     /* Funcao ilustrativa: lista pokemons de um treinador pois o browser solidity não mostra o conteúdo dos arrays no struct e no mapping */
-    function listPokemons( address _pokeOwner )  returns (address, uint[]){
+    function listPokemons( address _pokeOwner ) public returns (address, uint[] memory){
         uint ownerID = pokeOwnerIndex[_pokeOwner];
-        PokemonMaster o = pokeMasters[ownerID];
+        PokemonMaster memory o = pokeMasters[ownerID];
 
         /* Lista pokemons tanto do struct quanto do mapping. */
         return ( _pokeOwner, balanceOf[_pokeOwner] );
@@ -247,10 +247,10 @@ contract PokeCentral is accessControlled {
         if (msg.sender != owner && msg.sender != pokeMarketAddress) revert();
 
         uint ownerID = pokeOwnerIndex[_pokeOwner];
-        PokemonMaster o = pokeMasters[ownerID];
-        uint[] pokeList = o.pokemons;
+        PokemonMaster memory o = pokeMasters[ownerID];
+        uint[] memory pokeList = o.pokemons;
         uint count = 0;
-        for (uint i=0; i < pokeList.length; i++){
+        for (uint i = 0; i < pokeList.length; i++){
             if ( pokeList[i] > 0 ){
                 count++;
             }
@@ -261,29 +261,29 @@ contract PokeCentral is accessControlled {
 
     /* Exemplo 2: Conta a qtde de pokemons diretamente do mapping */
     function qtdePokemonsMapping( address _pokeOwner) internal returns (uint qtde){
-        uint[] tempList = balanceOf[_pokeOwner];
+        uint[] memory tempList = balanceOf[_pokeOwner];
         totalPokemonsFromMaster[_pokeOwner] = tempList.length;
         return tempList.length;
     }
 
 
     /* Esta funcao elimina todos os itens com zero do array, ao custo de gas */
-    function cleanArray(uint[] pokeList) internal returns (uint[]){
+    function cleanArray(uint[] memory pokeList) internal returns (uint[] memory){
         uint[] memory tempArray = new uint[](pokeList.length);
         uint j = 0;
-        for (uint i=0; i < pokeList.length; i++){
+        for (uint i = 0; i < pokeList.length; i++){
             if ( pokeList[i] > 0 ){
                 tempArray[j] = pokeList[i];
                 j++;
             }
         }
         uint[] memory tempArray2 = new uint[](j);
-        for (i=0; i< j; i++) tempArray2[i] = tempArray[i];
+        for (uint i = 0; i < j; i++) tempArray2[i] = tempArray[i];
         return tempArray2;
     }
 
     /* Se tentarem enviar ether para o end desse contrato, ele rejeita */
-    function () {
+    function () external {
         revert();
     }
 }

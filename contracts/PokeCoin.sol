@@ -20,8 +20,8 @@ Copyright (c) 2016 Edilson Osorio Junior - OriginalMy.com
  THE SOFTWARE.
 */
 
-pragma solidity ^0.4.2;
-contract tokenRecipient { function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData) public; }
+pragma solidity ^0.5.1;
+contract tokenRecipient { function receiveApproval(address _from, uint256 _value, address _token, bytes memory _extraData) public; }
 
 contract accessControlled {
     address public owner;
@@ -61,7 +61,7 @@ contract PokeCoin is accessControlled{
     event Transfer(address indexed from, address indexed to, uint256 value);
 
     /* Inicializa o contrato com o numero inicial de tokens */
-    function PokeCoin( uint256 initialSupply, address account1Demo, address account2Demo) public {
+    constructor(uint256 initialSupply, address account1Demo, address account2Demo) public {
         owner = msg.sender;
 
         /* Envia as pokecoins para o criador */
@@ -70,7 +70,7 @@ contract PokeCoin is accessControlled{
         totalSupply = initialSupply;
 
         /* Se incluiu os enderecos demo, então divide as pokecoins entre eles */
-        if (account1Demo != 0 && account2Demo != 0){
+        if (account1Demo != address(0) && account2Demo != address(0)){
             transfer(account1Demo, totalSupply/2);
             transfer(account2Demo, totalSupply/2);
         }
@@ -82,7 +82,7 @@ contract PokeCoin is accessControlled{
         if (balanceOf[_to] + _value < balanceOf[_to]) revert(); // Checa se nao houve ataque
         balanceOf[msg.sender] -= _value;                     // Subtrai as pokecoins do remetente
         balanceOf[_to] += _value;                            // Adiciona pokecoins para o destinatario
-        Transfer(msg.sender, _to, _value);                   // Notifica os clientes que estiverem nonitorando
+        emit Transfer(msg.sender, _to, _value);                   // Notifica os clientes que estiverem nonitorando
     }
 
     /* Emite novas pokecoins para o owner distribuí-las */
@@ -106,12 +106,12 @@ contract PokeCoin is accessControlled{
         if (balanceOf[_to] + _value < balanceOf[_to]) revert();  // Checa se nao houve ataque
         balanceOf[_from] -= _value;                          // Subtrai as pokecoins do remetente
         balanceOf[_to] += _value;                            // Adiciona pokecoins para o destinatario
-        Transfer(_from, _to, _value);                       // Notifica os clientes que estiverem nonitorando
+        emit Transfer(_from, _to, _value);                       // Notifica os clientes que estiverem nonitorando
         return true;
     }
 
     /* Uma funcao sem nome '()' eh chamada todas as vezes que forem enviados ethers para ela */
-    function () public {
+    function () external {
         revert();     // Nao permite o recebimento de ether
     }
 }

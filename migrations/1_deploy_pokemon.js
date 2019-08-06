@@ -1,9 +1,9 @@
-const PokeCoin = artifacts.require("PokeCoin");
-const PokeCentral = artifacts.require("PokeCentral");
-const PokeMarket = artifacts.require("PokeMarket");
+const PokeCoin = artifacts.require("./PokeCoin");
+const PokeCentral = artifacts.require("./PokeCentral");
+const PokeMarket = artifacts.require("./PokeMarket");
 
-account1Demo = '0xd712cbbb96d1eb04618a17ddc0cdf3f671dd8554';
-account2Demo = '0xca6f52777fd5f415b717e65a3557061e907baffa';
+account1Demo = '0x564449533d62177f1cfd847e6219633744867d42';
+account2Demo = '0x8d87d8bc7c7d09966808d153c270e5b4a65f057e';
 pokeCoinAddress = '';
 pokeCentralAddress = '';
 module.exports = function(deployer) {
