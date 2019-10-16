@@ -38,7 +38,7 @@ contract accessControlled {
         _;
     }
 
-    function transferOwnership(address newOwner) public onlyOwner {
+    function transferOwnership(address newOwner) public  {
         owner = newOwner;
     }
 
@@ -79,7 +79,7 @@ contract PokeMarket is accessControlled {
     // }
 
     /* Inicia uma nova venda */
-    function newSale(address pokeSellerAddress, uint pokemonID, uint pokemonSalePrice) public onlyOwner returns (bool success){
+    function newSale(address pokeSellerAddress, uint pokemonID, uint pokemonSalePrice) public  returns (bool success){
         if (pokeSellerAddress != pokeCentral.pokemonToMaster(pokemonID)) revert('newSale1');     // Verifica se o vendedor possui o pokemon colocado a venda
         if (pokeSelling[pokemonID]) revert('newSale2');                                          // Verifica se ja ha venda ativa para este pokemon
 
@@ -105,7 +105,7 @@ contract PokeMarket is accessControlled {
     }
 
     /* Cancela uma venda ativa */
-    function stopSale(address pokeSellerAddress, uint pokemonID) public onlyOwner {
+    function stopSale(address pokeSellerAddress, uint pokemonID) public  {
         if (msg.sender != owner && msg.sender != pokeSellerAddress) revert('stopSale1');          // Verifica se quem está solicitando o cancelamento da venda é o criador da mesma ou o owner
         if (pokeSellerAddress != pokeCentral.pokemonToMaster(pokemonID)) revert('stopSale2');     // Verifica se o pokemon é do proprietario
         if (!pokeSelling[pokemonID]) revert('stopSale3');                                         // Verifica se a venda esta ativa
@@ -145,7 +145,7 @@ contract PokeMarket is accessControlled {
     }
 
     /* Adiciona o pokemon para a lista de vendas */
-    function addPokemonToSellingList(address pokeSellerAddress, uint pokemonID) onlyOwner internal {
+    function addPokemonToSellingList(address pokeSellerAddress, uint pokemonID)  internal {
         uint[] storage tempList = pokeMasterSelling[pokeSellerAddress];                 // Carrega a lista de vendas para o vendedor
         tempList[tempList.length++] = pokemonID;                                // Adiciona um pokemon ao final da lista
 
@@ -154,7 +154,7 @@ contract PokeMarket is accessControlled {
 
 
     /* Exclui um pokemon da lista de vendas */
-    function delPokemonFromSellingList(address pokeSellerAddress, uint pokemonID) onlyOwner internal {
+    function delPokemonFromSellingList(address pokeSellerAddress, uint pokemonID)  internal {
         uint[] memory tempList = pokeMasterSelling[pokeSellerAddress];                 // Carrega a lista de vendas para o vendedor
         uint count = tempList.length;                                           // Conta o numero de itens da lista
 
@@ -166,14 +166,14 @@ contract PokeMarket is accessControlled {
     }
 
     /* Atualiza os enderecos da Pokecoin e da PokeCentral */
-    function updatePokecoinAndPokemarketAddresses(address newPokecoinAddress, address newPokecentralAddress) public onlyOwner {
+    function updatePokecoinAndPokemarketAddresses(address newPokecoinAddress, address newPokecentralAddress) public  {
         pokeCoin = pokeCoinContract(newPokecoinAddress);
         pokeCentral = pokeCentralContract(newPokecentralAddress);
 
     }
 
     /* Esta funcao elimina todos os itens com zero do array, ao custo de gas */
-    function cleanArray(uint[] memory pokeList) onlyOwner internal returns (uint[] memory) {
+    function cleanArray(uint[] memory pokeList)  internal returns (uint[] memory) {
         uint[] memory tempList = new uint[](pokeList.length);                   // Cria uma lista temporaria em memoria, do tamanho do array
         uint j = 0;
         for (uint i = 0; i < pokeList.length; i++){

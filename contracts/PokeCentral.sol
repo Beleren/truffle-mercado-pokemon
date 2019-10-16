@@ -35,11 +35,11 @@ contract accessControlled {
         _;
     }
 
-    function transferOwnership(address newOwner) public onlyOwner {
+    function transferOwnership(address newOwner) public  {
         owner = newOwner;
     }
 
-    function updatePokeMarketAddress(address marketAddress) public onlyOwner {
+    function updatePokeMarketAddress(address marketAddress) public  {
         pokeMarketAddress = marketAddress;
     }
 
@@ -112,7 +112,7 @@ contract PokeCentral is accessControlled {
     // }
 
     /* Criar novo Pokemon */
-    function newPokemon(uint pokemonNumber, uint cp, uint hp ) public onlyOwner returns (bool success) { // cp e hp podem ser fornecidos randomicamente por https://api.random.org/json-rpc/1/basic
+    function newPokemon(uint pokemonNumber, uint cp, uint hp ) public  returns (bool success) { // cp e hp podem ser fornecidos randomicamente por https://api.random.org/json-rpc/1/basic
         uint pokemonID = pokemons.length++;
         Pokemon memory p = pokemons[pokemonID];
         p.pokeNumber = pokemonNumber;
@@ -132,7 +132,7 @@ contract PokeCentral is accessControlled {
     }
 
     /* Alterar CP e HP de um Pokemon */
-    function updatePokemon(uint _pokemonID, uint _cp, uint _hp ) public onlyOwner returns (bool success) {
+    function updatePokemon(uint _pokemonID, uint _cp, uint _hp ) public  returns (bool success) {
         Pokemon memory p = pokemons[_pokemonID];
         p.pokeCP = _cp;
         p.pokeHP = _hp;
@@ -145,7 +145,7 @@ contract PokeCentral is accessControlled {
     }
 
     /* Criar novo Mestre Pokemon */
-    function newPokemonMaster(address pokemonMaster) public onlyOwner returns (bool success) {
+    function newPokemonMaster(address pokemonMaster) public  returns (bool success) {
         uint ownerID = pokeMasters.length++;
         PokemonMaster memory o = pokeMasters[ownerID];
         o.pokeMaster = pokemonMaster;

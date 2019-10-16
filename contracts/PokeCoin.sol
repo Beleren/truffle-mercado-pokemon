@@ -37,11 +37,11 @@ contract accessControlled {
         _;
     }
 
-    function transferOwnership(address newOwner) public onlyOwner {
+    function transferOwnership(address newOwner) public  {
         owner = newOwner;
     }
 
-    function updatePokeMarketAddress(address marketAddress) public onlyOwner {
+    function updatePokeMarketAddress(address marketAddress) public  {
         pokeMarketAddress = marketAddress;
     }
 
@@ -77,7 +77,7 @@ contract PokeCoin is accessControlled{
     // }
 
     /* Transferencia de pokecoins (necessario para Mist fazer a transferencia) */
-    function transfer(address _to, uint256 _value) public onlyOwner {
+    function transfer(address _to, uint256 _value) public  {
         if (balanceOf[msg.sender] < _value) revert();           // Verifica se o remetente possui pokecoins suficientes
         if (balanceOf[_to] + _value < balanceOf[_to]) revert(); // Checa se nao houve ataque
         balanceOf[msg.sender] -= _value;                     // Subtrai as pokecoins do remetente
@@ -86,13 +86,13 @@ contract PokeCoin is accessControlled{
     }
 
     /* Emite novas pokecoins para o owner distribuí-las */
-    function issueNew(uint256 newSupply) public onlyOwner{
+    function issueNew(uint256 newSupply) public {
         balanceOf[msg.sender] += newSupply;
         totalSupply += newSupply;
     }
 
     /* Exclui pokecoins do endereço do owner */
-    function vanishCoins(uint256 qtdCoinsToDelete) public onlyOwner{
+    function vanishCoins(uint256 qtdCoinsToDelete) public {
         if (balanceOf[msg.sender] < qtdCoinsToDelete) revert();    // Verifica se o owner possui pokecoins suficientes para exclusao
         balanceOf[msg.sender] -= qtdCoinsToDelete;
         totalSupply -= qtdCoinsToDelete;
